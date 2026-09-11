@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fraunces: "Fraunces", serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+body {
+  background-color: #FAFAF8;
+  color: #16241D;
+}
+
+/* visible keyboard focus, kept deliberate not removed */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #E8562F;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
