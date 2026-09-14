@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { ListingsSection } from "@/components/listings/ListingsSection";
 import type { ListingGridItem } from "@/components/listings/ListingGrid";
+import { QuoteWidget } from "@/components/QuoteWidget";
 import { createBrowserClient } from "@/lib/supabase/client";
 
 async function getListings(): Promise<ListingGridItem[]> {
@@ -65,6 +66,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <QuoteWidget />
 
       <ListingsSection listings={listings} />
     </main>

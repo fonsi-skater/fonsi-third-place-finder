@@ -14,7 +14,7 @@ export function ListingGrid({ listings }: { listings: ListingGridItem[] }) {
   if (listings.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted">
-        No listings yet for this area — the automated fetch runs daily,
+        No listings yet for this area - the automated fetch runs daily,
         check back soon.
       </p>
     );
@@ -25,11 +25,11 @@ export function ListingGrid({ listings }: { listings: ListingGridItem[] }) {
       {listings.map((listing) => (
         <ListingCard
           key={listing.id}
+          id={listing.id}
           title={listing.title}
           category={listing.category}
           address={listing.address}
           recurrence={listing.recurrence}
-          contactUrl={listing.contact_url}
         />
       ))}
     </div>

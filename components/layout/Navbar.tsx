@@ -1,9 +1,8 @@
 import Link from "next/link";
 
 const navItems = [
-  { label: "Categories", href: "/categories" },
-  { label: "Near You", href: "/near-you" },
-  { label: "About", href: "/about" },
+  { label: "Categories", href: "/#listings" },
+  { label: "Near You", href: "/#listings" },
 ];
 
 export function Navbar() {
