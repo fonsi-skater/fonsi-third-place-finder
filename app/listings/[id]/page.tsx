@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { InterestedButton } from "@/components/listings/InterestedButton";
 import { WhatsAppShareButton } from "@/components/listings/WhatsAppShareButton";
@@ -38,7 +39,14 @@ export default async function ListingDetailPage({
   if (!listing) notFound();
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`;
-  const pageUrl = `https://your-deployed-domain.vercel.app/listings/${listing.id}`;
+
+  // Built from the actual incoming request, so this works correctly on
+  // localhost during development AND on the real domain once deployed -
+  // no hardcoded URL to remember to update.
+  const headersList = headers();
+  const host = headersList.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  const pageUrl = `${protocol}://${host}/listings/${listing.id}`;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-4">
