@@ -12,7 +12,15 @@ body {
   color: #16241D;
 }
 
-/* visible keyboard focus, kept deliberate not removed */
+@layer components {
+  .input {
+    @apply rounded-xl border border-black/10 px-4 py-2.5 text-sm text-ink outline-none transition-colors;
+  }
+  .input:focus {
+    @apply border-forest;
+  }
+}
+
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid #E8562F;

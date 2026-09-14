@@ -1,7 +1,25 @@
 import type { ListingCategory, NormalizedListing } from "@/types/listing";
 
+/**
+ * OpenStreetMap client — our one free, automated data source.
+ *
+ * Two public services, both free and keyless:
+ * - Nominatim: turns a place name ("Ruiru, Kenya") into coordinates.
+ * - Overpass API: queries OSM's raw map data for tagged places
+ *   (sports clubs, community centres, places of worship, etc.)
+ *   within a radius of a point.
+ *
+ * Usage policy for both is strict about being a good citizen:
+ * - Always send a descriptive User-Agent (required by Nominatim's policy).
+ * - Max ~1 request/second — we are not a high-volume consumer, so this
+ *   is easy to respect since the cron job runs at most a few times a day.
+ * - Cache/store results rather than re-querying repeatedly for the same area.
+ */
+
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
 const OVERPASS_BASE = "https://overpass-api.de/api/interpreter";
+
+// Required by Nominatim's usage policy — identifies our app, not a browser.
 const USER_AGENT = "FonsiThirdPlaceFinder/0.1 (contact: fonsialphonce@gmail.com)";
 
 export interface GeocodedPlace {
@@ -10,6 +28,7 @@ export interface GeocodedPlace {
   displayName: string;
 }
 
+/** Turn a place name like "Ruiru, Kenya" into coordinates. */
 export async function geocodePlace(query: string): Promise<GeocodedPlace | null> {
   const url = new URL(`${NOMINATIM_BASE}/search`);
   url.searchParams.set("q", query);
@@ -39,6 +58,8 @@ export async function geocodePlace(query: string): Promise<GeocodedPlace | null>
   };
 }
 
+// Maps our own categories to the OSM tags that best represent them.
+// OSM uses a key=value tagging system (e.g. leisure=sports_centre).
 const CATEGORY_TAG_MAP: Record<ListingCategory, string[]> = {
   sports: ["leisure=sports_centre", "leisure=fitness_centre", "leisure=pitch"],
   hobbies: ["leisure=community_centre", "shop=games", "leisure=adult_gaming_centre"],
@@ -57,6 +78,11 @@ interface OverpassElement {
   tags?: Record<string, string>;
 }
 
+/**
+ * Query OSM for tagged venues within `radiusMeters` of a point, for one
+ * of our categories. Returns already-normalized listings ready to
+ * de-dupe and insert into Supabase.
+ */
 export async function fetchNearbyVenues(
   latitude: number,
   longitude: number,
@@ -65,6 +91,8 @@ export async function fetchNearbyVenues(
 ): Promise<NormalizedListing[]> {
   const tags = CATEGORY_TAG_MAP[category];
 
+  // Overpass QL: for each tag, find nodes/ways/relations with that tag
+  // within radiusMeters of (latitude, longitude).
   const tagClauses = tags
     .map((tag) => {
       const [key, value] = tag.split("=");
@@ -99,7 +127,7 @@ export async function fetchNearbyVenues(
   const data = (await res.json()) as { elements: OverpassElement[] };
 
   return data.elements
-    .filter((el) => el.tags?.name)
+    .filter((el) => el.tags?.name) // skip unnamed/low-quality entries
     .map((el) => normalizeElement(el, category));
 }
 
@@ -125,7 +153,7 @@ function normalizeElement(
     address: addressParts.length > 0 ? addressParts.join(", ") : null,
     latitude: lat,
     longitude: lon,
-    recurrence: null,
+    recurrence: null, // OSM has no schedule data — venues, not recurring groups
     startsAt: null,
     endsAt: null,
     contactUrl: tags.website ?? tags["contact:website"] ?? null,

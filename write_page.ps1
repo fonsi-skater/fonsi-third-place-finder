@@ -1,3 +1,4 @@
+$content = @'
 import { Navbar } from "@/components/layout/Navbar";
 import { ListingsSection } from "@/components/listings/ListingsSection";
 import type { ListingGridItem } from "@/components/listings/ListingGrid";
@@ -40,7 +41,7 @@ export default async function HomePage() {
           </h1>
           <p className="mx-auto mt-4 max-w-md text-sm text-sand/80 sm:text-base">
             Real hiking crews, cycling clubs, board game nights, and tech
-            meetups happening near you this week — not another dead group
+            meetups happening near you this week - not another dead group
             chat.
           </p>
 
@@ -56,7 +57,7 @@ export default async function HomePage() {
               </span>
             </div>
 
-            <a
+            
               href="#listings"
               className="rounded-full bg-ember px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02]"
             >
@@ -70,3 +71,7 @@ export default async function HomePage() {
     </main>
   );
 }
+'@
+
+[System.IO.File]::WriteAllText("app\page.tsx", $content, (New-Object System.Text.UTF8Encoding($false)))
+Write-Host "page.tsx written successfully." -ForegroundColor Green
